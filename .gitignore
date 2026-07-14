@@ -12,5 +12,3 @@ coverage/
 # Prisma generated client
 apps/api/src/prisma/generated/
 **/prisma/generated/
-
-pnpm-lock.yaml
