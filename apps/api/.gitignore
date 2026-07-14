@@ -5,4 +5,4 @@ node_modules
 /generated/prisma
 
 # Prisma generated client
-generated/prisma/
+apps/api/src/prisma/generated/
