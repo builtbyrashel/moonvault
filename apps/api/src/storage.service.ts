@@ -14,14 +14,14 @@ export class StorageService {
   }
 
   async incrementStorageUsed(userId: string, bytes: bigint) {
-    return this.prisma.user.update({
+    return await this.prisma.user.update({
       where: { id: userId },
       data: { storageUsedBytes: { increment: bytes } },
     });
   }
 
   async decrementStorageUsed(userId: string, bytes: bigint) {
-    return this.prisma.user.update({
+    return await this.prisma.user.update({
       where: { id: userId },
       data: { storageUsedBytes: { decrement: bytes } },
     });
