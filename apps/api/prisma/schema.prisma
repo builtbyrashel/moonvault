@@ -21,4 +21,22 @@ model User {
   storageQuotaBytes BigInt   @default(21474836480)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  images            Image[]
+}
+
+model Image {
+  id               String   @id @default(uuid())
+  userId           String
+  storageKey       String   @unique
+  originalFilename String
+  mimeType         String
+  sizeBytes        Int
+  isPublic         Boolean  @default(false)
+  title            String?
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isPublic])
 }
