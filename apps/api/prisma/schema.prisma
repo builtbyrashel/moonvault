@@ -22,6 +22,7 @@ model User {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   images            Image[]
+  bookmarks Bookmark[]
 }
 
 model Image {
@@ -43,9 +44,25 @@ model Image {
   duplicateOfId     String?
   exifData          Json?
 
+  bookmarks Bookmark[]
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([isPublic])
   @@index([phash])
+}
+
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  imageId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  image Image @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, imageId])
+  @@index([imageId])
 }

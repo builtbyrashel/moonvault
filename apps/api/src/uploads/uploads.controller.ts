@@ -70,4 +70,16 @@ export class UploadsController {
   async deleteOne(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.uploadsService.deleteById(id, req.user.userId);
   }
+
+  @Post(':id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  async bookmark(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.uploadsService.addBookmark(id, req.user.userId);
+  }
+
+  @Delete(':id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  async unbookmark(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.uploadsService.removeBookmark(id, req.user.userId);
+  }
 }
