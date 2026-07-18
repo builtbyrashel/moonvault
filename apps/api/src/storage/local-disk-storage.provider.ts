@@ -31,4 +31,9 @@ export class LocalDiskStorageProvider implements StorageProvider {
     const filePath = path.join(this.basePath, key);
     await fs.rm(filePath, { force: true });
   }
+
+  async download(key: string): Promise<Buffer> {
+    const filePath = path.join(this.basePath, key);
+    return fs.readFile(filePath);
+  }
 }

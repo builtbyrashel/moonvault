@@ -5,6 +5,7 @@ export interface UploadResult {
 
 export interface StorageProvider {
   upload(buffer: Buffer, key: string, mimeType: string): Promise<UploadResult>;
+  download(key: string): Promise<Buffer>;
   getReadStreamUrl(key: string): Promise<string>;
   delete(key: string): Promise<void>;
 }
