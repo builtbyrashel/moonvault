@@ -89,6 +89,7 @@ export class UploadsService {
       processingStatus: image.processingStatus,
       width: image.width,
       height: image.height,
+      exif: image.exifData,
       url,
       thumbnailUrl,
     };

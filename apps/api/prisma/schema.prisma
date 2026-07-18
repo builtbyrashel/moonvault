@@ -35,12 +35,13 @@ model Image {
   title             String?
   createdAt         DateTime @default(now())
 
-  processingStatus  String   @default("pending") // pending | processing | ready | failed
+  processingStatus  String   @default("pending")
   thumbnailKey      String?
   width             Int?
   height            Int?
   phash             String?
   duplicateOfId     String?
+  exifData          Json?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
