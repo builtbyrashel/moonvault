@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
+  Param,
   Post,
   Req,
   UploadedFile,
@@ -54,5 +56,11 @@ export class UploadsController {
     }
 
     return this.uploadsService.handleUpload(req.user.userId, file, dto);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.uploadsService.getById(id, req.user.userId);
   }
 }
