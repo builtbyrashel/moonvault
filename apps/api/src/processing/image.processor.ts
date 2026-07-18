@@ -3,6 +3,8 @@ import { Job } from 'bullmq';
 import * as exifr from 'exifr';
 import { Inject, Logger } from '@nestjs/common';
 import sharp from 'sharp';
+import phash from 'sharp-phash';
+import dist from 'sharp-phash/distance';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   STORAGE_PROVIDER,
@@ -23,6 +25,8 @@ interface ExtractedExif {
   FocalLength?: number;
   DateTimeOriginal?: Date;
 }
+
+const DUPLICATE_DISTANCE_THRESHOLD = 10; // out of 64 bits; lower = stricter match
 
 @Processor('image-processing')
 export class ImageProcessor extends WorkerHost {
@@ -77,6 +81,29 @@ export class ImageProcessor extends WorkerHost {
           }
         : undefined;
 
+      const hash = await phash(original);
+
+      const candidateMatches = await this.prisma.image.findMany({
+        where: {
+          userId: image.userId,
+          id: { not: image.id },
+          phash: { not: null },
+          processingStatus: 'ready',
+        },
+        select: { id: true, phash: true },
+      });
+
+      let duplicateOfId: string | null = null;
+      for (const candidate of candidateMatches) {
+        if (
+          candidate.phash &&
+          dist(hash, candidate.phash) <= DUPLICATE_DISTANCE_THRESHOLD
+        ) {
+          duplicateOfId = candidate.id;
+          break;
+        }
+      }
+
       const thumbnailBuffer = await sharp(original)
         .resize({ width: 400, withoutEnlargement: true })
         .webp({ quality: 80 })
@@ -95,6 +122,8 @@ export class ImageProcessor extends WorkerHost {
           width: metadata.width ?? null,
           height: metadata.height ?? null,
           thumbnailKey,
+          phash: hash,
+          duplicateOfId,
           processingStatus: 'ready',
           ...(exifData && Object.keys(exifData).length > 0 ? { exifData } : {}),
         },
