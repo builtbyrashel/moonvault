@@ -12,6 +12,7 @@ import {
   type StorageProvider,
 } from '../storage/storage-provider.interface';
 import { UploadImageDto } from './dto/upload-image.dto';
+import { ProcessingQueueService } from '../processing/processing-queue.service';
 
 @Injectable()
 export class UploadsService {
@@ -19,6 +20,7 @@ export class UploadsService {
     private prisma: PrismaService,
     private storageService: StorageService,
     @Inject(STORAGE_PROVIDER) private storageProvider: StorageProvider,
+    private processingQueue: ProcessingQueueService,
   ) {}
 
   async handleUpload(
@@ -46,6 +48,7 @@ export class UploadsService {
       },
     });
 
+    await this.processingQueue.enqueueImageProcessing(image.id);
     await this.storageService.incrementStorageUsed(userId, BigInt(sizeBytes));
 
     return {
@@ -72,6 +75,9 @@ export class UploadsService {
     }
 
     const url = await this.storageProvider.getReadStreamUrl(image.storageKey);
+    const thumbnailUrl = image.thumbnailKey
+      ? await this.storageProvider.getReadStreamUrl(image.thumbnailKey)
+      : null;
 
     return {
       id: image.id,
@@ -80,7 +86,11 @@ export class UploadsService {
       mimeType: image.mimeType,
       sizeBytes: image.sizeBytes,
       createdAt: image.createdAt,
+      processingStatus: image.processingStatus,
+      width: image.width,
+      height: image.height,
       url,
+      thumbnailUrl,
     };
   }
 
