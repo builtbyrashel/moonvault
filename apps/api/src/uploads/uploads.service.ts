@@ -90,6 +90,7 @@ export class UploadsService {
       width: image.width,
       height: image.height,
       exif: image.exifData,
+      duplicateOfId: image.duplicateOfId,
       url,
       thumbnailUrl,
     };

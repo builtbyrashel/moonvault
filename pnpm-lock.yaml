@@ -76,6 +76,9 @@ importers:
       sharp:
         specifier: ^0.35.3
         version: 0.35.3(@types/node@24.13.3)
+      sharp-phash:
+        specifier: ^2.2.0
+        version: 2.2.0(sharp@0.35.3(@types/node@24.13.3))
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -3368,6 +3371,12 @@ packages:
 
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
+
+  sharp-phash@2.2.0:
+    resolution: {integrity: sha512-/gBoes9EycJkt/2aakKl9BeSGxFbPpZ5lCDtpRRlnU+vkqqcdXi8YLIlXnJsTtTBmaL82zh1bPkV7uZSSIsj8w==}
+    engines: {node: '>= 10'}
+    peerDependencies:
+      sharp: '>= 0.32.0'
 
   sharp@0.35.3:
     resolution: {integrity: sha512-ej0zVHuZGHCiABXcNxeYhpRnPNPAcvbG8RMdBAhDAxLKkCRVSpK3Iyu7qbqw3JMzoj0REeM6f3tJLtVwl0023Q==}
@@ -7410,6 +7419,10 @@ snapshots:
       - supports-color
 
   setprototypeof@1.2.0: {}
+
+  sharp-phash@2.2.0(sharp@0.35.3(@types/node@24.13.3)):
+    dependencies:
+      sharp: 0.35.3(@types/node@24.13.3)
 
   sharp@0.35.3(@types/node@24.13.3):
     dependencies:
