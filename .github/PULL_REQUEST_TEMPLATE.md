@@ -1,16 +1,14 @@
 ## Summary
-<!-- What does this PR change, and why? -->
+<!-- What does this change, in plain terms? -->
 
-## Related issue
-Closes #
+## Why
+<!-- What problem prompted this? What alternatives were considered, if any? -->
 
-## Type of change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Refactor
-- [ ] Docs / chore
+## Implementation
+<!-- Key technical decisions worth knowing about -->
 
-## Checklist
-- [ ] I tested this locally
-- [ ] I added/updated tests where relevant
-- [ ] I updated docs if behavior changed
+## Testing
+<!-- What you actually verified, and how (curl output, test names, etc.) -->
+
+## Not yet done
+<!-- Explicitly out of scope for this PR, if relevant -->
