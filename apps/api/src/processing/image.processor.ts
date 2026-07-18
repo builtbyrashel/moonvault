@@ -1,5 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
+import * as exifr from 'exifr';
 import { Inject, Logger } from '@nestjs/common';
 import sharp from 'sharp';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,6 +11,17 @@ import {
 
 interface ProcessImageJobData {
   imageId: string;
+}
+
+interface ExtractedExif {
+  Make?: string;
+  Model?: string;
+  LensModel?: string;
+  ExposureTime?: number;
+  FNumber?: number;
+  ISO?: number;
+  FocalLength?: number;
+  DateTimeOriginal?: Date;
 }
 
 @Processor('image-processing')
@@ -43,6 +55,28 @@ export class ImageProcessor extends WorkerHost {
       const original = await this.storageProvider.download(image.storageKey);
       const metadata = await sharp(original).metadata();
 
+      const rawExif = (await exifr.parse(original, {
+        pick: [
+          'Make',
+          'Model',
+          'LensModel',
+          'ExposureTime',
+          'FNumber',
+          'ISO',
+          'FocalLength',
+          'DateTimeOriginal',
+        ],
+      })) as ExtractedExif | undefined;
+
+      const exifData = rawExif
+        ? {
+            ...rawExif,
+            DateTimeOriginal: rawExif.DateTimeOriginal
+              ? rawExif.DateTimeOriginal.toISOString()
+              : undefined,
+          }
+        : undefined;
+
       const thumbnailBuffer = await sharp(original)
         .resize({ width: 400, withoutEnlargement: true })
         .webp({ quality: 80 })
@@ -62,6 +96,7 @@ export class ImageProcessor extends WorkerHost {
           height: metadata.height ?? null,
           thumbnailKey,
           processingStatus: 'ready',
+          ...(exifData && Object.keys(exifData).length > 0 ? { exifData } : {}),
         },
       });
     } catch (err) {
