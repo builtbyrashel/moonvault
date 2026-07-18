@@ -21,7 +21,10 @@ export class GalleryService {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-      include: { user: { select: { displayName: true } } },
+      include: {
+        user: { select: { displayName: true } },
+        _count: { select: { bookmarks: true } },
+      },
     });
 
     const hasMore = images.length > limit;
@@ -38,6 +41,7 @@ export class GalleryService {
           ? await this.storageProvider.getReadStreamUrl(image.thumbnailKey)
           : null,
         createdAt: image.createdAt,
+        bookmarkCount: image._count.bookmarks,
       })),
     );
 

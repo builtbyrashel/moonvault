@@ -64,6 +64,7 @@ export class UploadsService {
   async getById(imageId: string, requestingUserId: string) {
     const image = await this.prisma.image.findUnique({
       where: { id: imageId },
+      include: { _count: { select: { bookmarks: true } } },
     });
 
     if (!image) {
@@ -73,6 +74,12 @@ export class UploadsService {
     if (!image.isPublic && image.userId !== requestingUserId) {
       throw new ForbiddenException('You do not have access to this image');
     }
+
+    const isBookmarked = await this.prisma.bookmark
+      .findUnique({
+        where: { userId_imageId: { userId: requestingUserId, imageId } },
+      })
+      .then((b) => b !== null);
 
     const url = await this.storageProvider.getReadStreamUrl(image.storageKey);
     const thumbnailUrl = image.thumbnailKey
@@ -91,6 +98,8 @@ export class UploadsService {
       height: image.height,
       exif: image.exifData,
       duplicateOfId: image.duplicateOfId,
+      bookmarkCount: image._count.bookmarks,
+      isBookmarked,
       url,
       thumbnailUrl,
     };
@@ -117,5 +126,32 @@ export class UploadsService {
     );
 
     return { deleted: true };
+  }
+
+  async addBookmark(imageId: string, userId: string) {
+    const image = await this.prisma.image.findUnique({
+      where: { id: imageId },
+    });
+    if (!image) {
+      throw new NotFoundException('Image not found');
+    }
+    if (!image.isPublic && image.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this image');
+    }
+
+    await this.prisma.bookmark.upsert({
+      where: { userId_imageId: { userId, imageId } },
+      create: { userId, imageId },
+      update: {},
+    });
+
+    return { bookmarked: true };
+  }
+
+  async removeBookmark(imageId: string, userId: string) {
+    await this.prisma.bookmark.deleteMany({
+      where: { userId, imageId },
+    });
+    return { bookmarked: false };
   }
 }
