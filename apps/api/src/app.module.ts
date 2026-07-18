@@ -6,6 +6,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { StorageModule } from './storage/storage.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { GalleryModule } from './gallery/gallery.module';
+import { GalleryService } from './gallery/gallery.service';
+import { GalleryController } from './gallery/gallery.controller';
 
 @Module({
   imports: [
@@ -19,8 +22,9 @@ import { UploadsModule } from './uploads/uploads.module';
     AuthModule,
     StorageModule,
     UploadsModule,
+    GalleryModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, GalleryController],
+  providers: [AppService, GalleryService],
 })
 export class AppModule {}
