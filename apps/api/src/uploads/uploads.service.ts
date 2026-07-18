@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage.service';
@@ -50,6 +55,32 @@ export class UploadsService {
       isPublic: image.isPublic,
       title: image.title,
       createdAt: image.createdAt,
+    };
+  }
+
+  async getById(imageId: string, requestingUserId: string) {
+    const image = await this.prisma.image.findUnique({
+      where: { id: imageId },
+    });
+
+    if (!image) {
+      throw new NotFoundException('Image not found');
+    }
+
+    if (!image.isPublic && image.userId !== requestingUserId) {
+      throw new ForbiddenException('You do not have access to this image');
+    }
+
+    const url = await this.storageProvider.getReadStreamUrl(image.storageKey);
+
+    return {
+      id: image.id,
+      title: image.title,
+      isPublic: image.isPublic,
+      mimeType: image.mimeType,
+      sizeBytes: image.sizeBytes,
+      createdAt: image.createdAt,
+      url,
     };
   }
 }

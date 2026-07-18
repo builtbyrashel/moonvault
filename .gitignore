@@ -11,4 +11,4 @@ coverage/
 
 # Prisma generated client
 apps/api/src/prisma/generated/
-**/prisma/generated/
+**/prisma/generated/apps/api/storage-data/
