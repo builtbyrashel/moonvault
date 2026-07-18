@@ -83,4 +83,27 @@ export class UploadsService {
       url,
     };
   }
+
+  async deleteById(imageId: string, requestingUserId: string) {
+    const image = await this.prisma.image.findUnique({
+      where: { id: imageId },
+    });
+
+    if (!image) {
+      throw new NotFoundException('Image not found');
+    }
+
+    if (image.userId !== requestingUserId) {
+      throw new ForbiddenException('You do not have access to this image');
+    }
+
+    await this.storageProvider.delete(image.storageKey);
+    await this.prisma.image.delete({ where: { id: imageId } });
+    await this.storageService.decrementStorageUsed(
+      requestingUserId,
+      BigInt(image.sizeBytes),
+    );
+
+    return { deleted: true };
+  }
 }

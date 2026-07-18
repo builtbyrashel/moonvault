@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Delete,
   Param,
   Post,
   Req,
@@ -62,5 +63,11 @@ export class UploadsController {
   @UseGuards(JwtAuthGuard)
   async getOne(@Param('id') id: string, @Req() req: RequestWithUser) {
     return this.uploadsService.getById(id, req.user.userId);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async deleteOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+    return this.uploadsService.deleteById(id, req.user.userId);
   }
 }
