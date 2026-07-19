@@ -3,8 +3,8 @@
   "private": true,
   "packageManager": "pnpm@10.11.0",
   "scripts": {
-    "lint": "pnpm --filter api run lint",
-    "build": "pnpm --filter api run build",
+    "lint": "pnpm --filter api run lint && pnpm --filter web run lint",
+    "build": "pnpm --filter api run build && pnpm --filter web run build",
     "test": "pnpm --filter api run test"
   }
 }
