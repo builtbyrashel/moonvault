@@ -132,6 +132,7 @@ export class UploadsService {
       duplicateOfId: image.duplicateOfId,
       bookmarkCount: image._count.bookmarks,
       isBookmarked,
+      isOwner: image.userId === requestingUserId,
       tags: image.tags.map((it) => it.tag.name),
       url,
       thumbnailUrl,
