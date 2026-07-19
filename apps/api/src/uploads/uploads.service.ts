@@ -23,6 +23,33 @@ export class UploadsService {
     private processingQueue: ProcessingQueueService,
   ) {}
 
+  private parseTagNames(raw?: string): string[] {
+    if (!raw) return [];
+    return [
+      ...new Set(
+        raw
+          .split(',')
+          .map((t) => t.trim().toLowerCase())
+          .filter((t) => t.length > 0),
+      ),
+    ];
+  }
+
+  private async attachTags(imageId: string, tagNames: string[]) {
+    for (const name of tagNames) {
+      const tag = await this.prisma.tag.upsert({
+        where: { name },
+        create: { name },
+        update: {},
+      });
+      await this.prisma.imageTag.upsert({
+        where: { imageId_tagId: { imageId, tagId: tag.id } },
+        create: { imageId, tagId: tag.id },
+        update: {},
+      });
+    }
+  }
+
   async handleUpload(
     userId: string,
     file: Express.Multer.File,
@@ -48,6 +75,8 @@ export class UploadsService {
       },
     });
 
+    const tagNames = this.parseTagNames(dto.tags);
+    await this.attachTags(image.id, tagNames);
     await this.processingQueue.enqueueImageProcessing(image.id);
     await this.storageService.incrementStorageUsed(userId, BigInt(sizeBytes));
 
@@ -64,7 +93,10 @@ export class UploadsService {
   async getById(imageId: string, requestingUserId: string) {
     const image = await this.prisma.image.findUnique({
       where: { id: imageId },
-      include: { _count: { select: { bookmarks: true } } },
+      include: {
+        _count: { select: { bookmarks: true } },
+        tags: { include: { tag: true } },
+      },
     });
 
     if (!image) {
@@ -100,6 +132,7 @@ export class UploadsService {
       duplicateOfId: image.duplicateOfId,
       bookmarkCount: image._count.bookmarks,
       isBookmarked,
+      tags: image.tags.map((it) => it.tag.name),
       url,
       thumbnailUrl,
     };
