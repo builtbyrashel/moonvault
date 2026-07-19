@@ -11,4 +11,8 @@ export class UploadImageDto {
   @IsBoolean()
   @Transform(({ value }) => value === 'true' || value === true)
   isPublic?: boolean;
+
+  @IsOptional()
+  @IsString()
+  tags?: string; // comma-separated, e.g. "anime,portrait,fan-art"
 }

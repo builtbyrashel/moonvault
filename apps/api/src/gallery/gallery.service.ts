@@ -15,15 +15,26 @@ export class GalleryService {
     @Inject(STORAGE_PROVIDER) private storageProvider: StorageProvider,
   ) {}
 
-  async getPublicFeed(cursor?: string, limit = DEFAULT_PAGE_SIZE) {
+  async getPublicFeed(
+    cursor?: string,
+    limit = DEFAULT_PAGE_SIZE,
+    tag?: string,
+  ) {
     const images = await this.prisma.image.findMany({
-      where: { isPublic: true, processingStatus: 'ready' },
+      where: {
+        isPublic: true,
+        processingStatus: 'ready',
+        ...(tag
+          ? { tags: { some: { tag: { name: tag.toLowerCase() } } } }
+          : {}),
+      },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
       include: {
         user: { select: { displayName: true } },
         _count: { select: { bookmarks: true } },
+        tags: { include: { tag: true } },
       },
     });
 
@@ -37,11 +48,12 @@ export class GalleryService {
         artist: image.user.displayName,
         width: image.width,
         height: image.height,
+        bookmarkCount: image._count.bookmarks,
+        tags: image.tags.map((it) => it.tag.name),
         thumbnailUrl: image.thumbnailKey
           ? await this.storageProvider.getReadStreamUrl(image.thumbnailKey)
           : null,
         createdAt: image.createdAt,
-        bookmarkCount: image._count.bookmarks,
       })),
     );
 

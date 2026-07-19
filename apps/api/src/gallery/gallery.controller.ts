@@ -9,8 +9,9 @@ export class GalleryController {
   async getFeed(
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: string,
+    @Query('tag') tag?: string,
   ) {
     const parsedLimit = limit ? Math.min(Number(limit), 50) : undefined;
-    return this.galleryService.getPublicFeed(cursor, parsedLimit);
+    return this.galleryService.getPublicFeed(cursor, parsedLimit, tag);
   }
 }
