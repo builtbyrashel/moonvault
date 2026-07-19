@@ -42,17 +42,18 @@ export function GalleryFeed({ initialItems, initialCursor }: GalleryFeedProps) {
             key={item.id}
             className="break-inside-avoid mb-3.5 bg-paper-light rounded-lg overflow-hidden"
           >
-            {item.thumbnailUrl && item.width && item.height ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
-                alt={item.title ?? 'Untitled artwork'}
-                style={{ aspectRatio: `${item.width} / ${item.height}` }}
-                className="w-full object-cover"
-              />
-            ) : (
-              <div className="aspect-square bg-ink/10" />
-            )}
+            <a href={`/images/${item.id}`}>
+              {item.thumbnailUrl && item.width && item.height ? (
+                <img
+                  src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
+                  alt={item.title ?? 'Untitled artwork'}
+                  style={{ aspectRatio: `${item.width} / ${item.height}` }}
+                  className="w-full object-cover"
+                />
+              ) : (
+                <div className="aspect-square bg-ink/10" />
+              )}
+            </a>
             <div className="p-2.5">
               <div className="text-sm font-medium">{item.title ?? 'Untitled'}</div>
               <div className="flex justify-between items-center mt-1">
