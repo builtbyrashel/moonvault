@@ -188,4 +188,39 @@ export class UploadsService {
     });
     return { bookmarked: false };
   }
+
+  async getMyUploads(userId: string, cursor?: string, limit = 20) {
+    const images = await this.prisma.image.findMany({
+      where: { userId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      include: { tags: { include: { tag: true } } },
+    });
+
+    const hasMore = images.length > limit;
+    const page = hasMore ? images.slice(0, limit) : images;
+
+    const items = await Promise.all(
+      page.map(async (image) => ({
+        id: image.id,
+        title: image.title,
+        isPublic: image.isPublic,
+        processingStatus: image.processingStatus,
+        width: image.width,
+        height: image.height,
+        sizeBytes: image.sizeBytes,
+        tags: image.tags.map((it) => it.tag.name),
+        thumbnailUrl: image.thumbnailKey
+          ? await this.storageProvider.getReadStreamUrl(image.thumbnailKey)
+          : null,
+        createdAt: image.createdAt,
+      })),
+    );
+
+    return {
+      items,
+      nextCursor: hasMore ? page[page.length - 1].id : null,
+    };
+  }
 }
