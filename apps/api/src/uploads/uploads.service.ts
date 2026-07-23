@@ -223,4 +223,38 @@ export class UploadsService {
       nextCursor: hasMore ? page[page.length - 1].id : null,
     };
   }
+
+  async updateImage(
+    imageId: string,
+    requestingUserId: string,
+    updates: { title?: string; isPublic?: boolean; tags?: string },
+  ) {
+    const image = await this.prisma.image.findUnique({
+      where: { id: imageId },
+    });
+    if (!image) {
+      throw new NotFoundException('Image not found');
+    }
+    if (image.userId !== requestingUserId) {
+      throw new ForbiddenException('You do not have access to this image');
+    }
+
+    await this.prisma.image.update({
+      where: { id: imageId },
+      data: {
+        ...(updates.title !== undefined ? { title: updates.title } : {}),
+        ...(updates.isPublic !== undefined
+          ? { isPublic: updates.isPublic }
+          : {}),
+      },
+    });
+
+    if (updates.tags !== undefined) {
+      const tagNames = this.parseTagNames(updates.tags);
+      await this.prisma.imageTag.deleteMany({ where: { imageId } });
+      await this.attachTags(imageId, tagNames);
+    }
+
+    return this.getById(imageId, requestingUserId);
+  }
 }

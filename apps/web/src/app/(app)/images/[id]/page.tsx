@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { serverFetch } from '@/lib/api';
 import { BookmarkButton } from '@/components/bookmark-button';
-import { DeleteImageButton } from '@/components/delete-image-button';
+import { ImageOwnerControls } from '@/components/image-owner-controls';
 
 interface ExifData {
   Make?: string;
@@ -95,9 +95,12 @@ export default async function ImageDetailPage({
       )}
 
       {image.isOwner && (
-        <div className="pt-4 border-t border-ink/10">
-          <DeleteImageButton imageId={image.id} />
-        </div>
+        <ImageOwnerControls
+          imageId={image.id}
+          title={image.title}
+          isPublic={image.isPublic}
+          tags={image.tags}
+        />
       )}
     </div>
   );
