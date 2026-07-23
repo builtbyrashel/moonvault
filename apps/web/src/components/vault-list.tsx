@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+
 interface VaultItem {
   id: string;
   title: string | null;
@@ -7,6 +11,7 @@ interface VaultItem {
   tags: string[];
   thumbnailUrl: string | null;
   createdAt: string;
+  duplicateOfId: string | null;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -49,19 +54,27 @@ export function VaultList({ items }: { items: VaultItem[] }) {
               {formatSize(item.sizeBytes)} · {item.isPublic ? 'Public' : 'Private'}
             </div>
           </div>
-          <span
-            className={`text-xs px-2.5 py-1 rounded-full ${
-              item.processingStatus === 'ready'
-                ? 'bg-brass/15 text-brass'
-                : item.processingStatus === 'failed'
-                  ? 'bg-accent/15 text-accent'
-                  : 'bg-slate/15 text-slate'
-            }`}
-          >
-            {STATUS_LABELS[item.processingStatus] ?? item.processingStatus}
-          </span>
+          <div className="flex items-center gap-2">
+            {item.duplicateOfId && (
+              <span className="text-xs text-brass" title="Possible duplicate of another upload">
+                ⚠ possible duplicate
+              </span>
+            )}
+            <span
+              className={`text-xs px-2.5 py-1 rounded-full ${
+                item.processingStatus === 'ready'
+                  ? 'bg-brass/15 text-brass'
+                  : item.processingStatus === 'failed'
+                    ? 'bg-accent/15 text-accent'
+                    : 'bg-slate/15 text-slate'
+              }`}
+            >
+              {STATUS_LABELS[item.processingStatus] ?? item.processingStatus}
+            </span>
+          </div>
         </a>
       ))}
     </div>
   );
 }
+

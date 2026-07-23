@@ -217,6 +217,7 @@ export class UploadsService {
           ? await this.storageProvider.getReadStreamUrl(image.thumbnailKey)
           : null,
         createdAt: image.createdAt,
+        duplicateOfId: image.duplicateOfId,
       })),
     );
 

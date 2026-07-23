@@ -26,6 +26,7 @@ interface ImageDetail {
   tags: string[];
   exif: ExifData | null;
   url: string;
+  duplicateOfId: string | null;
 }
 
 export default async function ImageDetailPage({
@@ -59,6 +60,16 @@ export default async function ImageDetailPage({
         }
         className="w-full rounded-lg mb-4"
       />
+
+      {image.duplicateOfId && image.isOwner && (
+        <div className="text-sm bg-brass/10 text-brass border border-brass/25 rounded-lg px-3 py-2 mb-4">
+          This looks similar to{' '}
+          <a href={`/images/${image.duplicateOfId}`} className="underline">
+            an image you already uploaded
+          </a>
+          .
+        </div>
+      )}
 
       <div className="flex items-center justify-between mb-2">
         <h1 className="font-display font-semibold text-lg">
