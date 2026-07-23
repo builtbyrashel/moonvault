@@ -96,6 +96,7 @@ export class UploadsService {
       include: {
         _count: { select: { bookmarks: true } },
         tags: { include: { tag: true } },
+        user: { select: { id: true, displayName: true } },
       },
     });
 
@@ -121,6 +122,7 @@ export class UploadsService {
     return {
       id: image.id,
       title: image.title,
+      artist: { id: image.user.id, displayName: image.user.displayName },
       isPublic: image.isPublic,
       mimeType: image.mimeType,
       sizeBytes: image.sizeBytes,

@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Param } from '@nestjs/common';
 import { GalleryService } from './gallery.service';
 
 @Controller('gallery')
@@ -32,5 +32,15 @@ export class GalleryController {
       parsedPage,
       parsedLimit,
     );
+  }
+
+  @Get('artists/:id')
+  async getArtist(
+    @Param('id') id: string,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const parsedLimit = limit ? Math.min(Number(limit), 50) : undefined;
+    return this.galleryService.getArtistFeed(id, cursor, parsedLimit);
   }
 }

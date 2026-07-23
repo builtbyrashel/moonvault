@@ -4,7 +4,7 @@ interface RankingItem {
   rank: number;
   id: string;
   title: string | null;
-  artist: string;
+  artist: { id: string; displayName: string };
   width: number | null;
   height: number | null;
   bookmarkCount: number;
@@ -65,7 +65,6 @@ export default async function RankingPage({
             )}
             <a href={`/images/${item.id}`}>
               {item.thumbnailUrl && item.width && item.height ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
                   alt={item.title ?? 'Untitled artwork'}
@@ -79,7 +78,12 @@ export default async function RankingPage({
             <div className="p-2.5">
               <div className="text-sm font-medium">{item.title ?? 'Untitled'}</div>
               <div className="flex justify-between items-center mt-1">
-                <span className="text-xs text-slate">@{item.artist}</span>
+                <a
+                  href={`/artists/${item.artist.id}`}
+                  className="text-xs text-slate hover:underline"
+                >
+                  @{item.artist.displayName}
+                </a>
                 <span className="text-xs font-mono text-accent">
                   ♥ {item.bookmarkCount}
                 </span>

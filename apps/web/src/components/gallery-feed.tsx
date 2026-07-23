@@ -5,7 +5,7 @@ import { useState } from 'react';
 interface GalleryItem {
   id: string;
   title: string | null;
-  artist: string;
+  artist?: { id: string; displayName: string };
   width: number | null;
   height: number | null;
   bookmarkCount: number;
@@ -18,9 +18,10 @@ interface GalleryFeedProps {
   initialItems: GalleryItem[];
   initialCursor: string | null;
   tag?: string;
+  artistId?: string;
 }
 
-export function GalleryFeed({ initialItems, initialCursor, tag }: GalleryFeedProps) {
+export function GalleryFeed({ initialItems, initialCursor, tag, artistId }: GalleryFeedProps) {
   const [items, setItems] = useState(initialItems);
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,10 @@ export function GalleryFeed({ initialItems, initialCursor, tag }: GalleryFeedPro
     setLoading(true);
     const params = new URLSearchParams({ cursor });
     if (tag) params.set('tag', tag);
-    const res = await fetch(`/api/gallery?${params.toString()}`);
+    const endpoint = artistId
+      ? `/api/gallery/artists/${artistId}`
+      : '/api/gallery';
+    const res = await fetch(`${endpoint}?${params.toString()}`);
     const data = await res.json();
     setItems((prev) => [...prev, ...data.items]);
     setCursor(data.nextCursor);
@@ -61,7 +65,11 @@ export function GalleryFeed({ initialItems, initialCursor, tag }: GalleryFeedPro
             <div className="p-2.5">
               <div className="text-sm font-medium">{item.title ?? 'Untitled'}</div>
               <div className="flex justify-between items-center mt-1 mb-1.5">
-                <span className="text-xs text-slate">@{item.artist}</span>
+                {item.artist && (
+                  <a href={`/artists/${item.artist.id}`} className="text-xs text-slate hover:underline">
+                    @{item.artist.displayName}
+                  </a>
+                )}
                 <span className="text-xs font-mono text-accent">
                   ♥ {item.bookmarkCount}
                 </span>

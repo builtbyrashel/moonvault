@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   STORAGE_PROVIDER,
@@ -47,7 +47,7 @@ export class GalleryService {
       page.map(async (image) => ({
         id: image.id,
         title: image.title,
-        artist: image.user.displayName,
+        artist: { id: image.userId, displayName: image.user.displayName },
         width: image.width,
         height: image.height,
         bookmarkCount: image._count.bookmarks,
@@ -103,7 +103,7 @@ export class GalleryService {
         rank: skip + index + 1,
         id: image.id,
         title: image.title,
-        artist: image.user.displayName,
+        artist: { id: image.userId, displayName: image.user.displayName },
         width: image.width,
         height: image.height,
         bookmarkCount: image._count.bookmarks,
@@ -116,5 +116,55 @@ export class GalleryService {
     );
 
     return { period, page, items };
+  }
+
+  async getArtistFeed(
+    artistId: string,
+    cursor?: string,
+    limit = DEFAULT_PAGE_SIZE,
+  ) {
+    const artist = await this.prisma.user.findUnique({
+      where: { id: artistId },
+      select: { id: true, displayName: true },
+    });
+
+    if (!artist) {
+      throw new NotFoundException('Artist not found');
+    }
+
+    const images = await this.prisma.image.findMany({
+      where: { userId: artistId, isPublic: true, processingStatus: 'ready' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      include: {
+        _count: { select: { bookmarks: true } },
+        tags: { include: { tag: true } },
+      },
+    });
+
+    const hasMore = images.length > limit;
+    const page = hasMore ? images.slice(0, limit) : images;
+
+    const items = await Promise.all(
+      page.map(async (image) => ({
+        id: image.id,
+        title: image.title,
+        width: image.width,
+        height: image.height,
+        bookmarkCount: image._count.bookmarks,
+        tags: image.tags.map((it) => it.tag.name),
+        thumbnailUrl: image.thumbnailKey
+          ? await this.storageProvider.getReadStreamUrl(image.thumbnailKey)
+          : null,
+        createdAt: image.createdAt,
+      })),
+    );
+
+    return {
+      artist: { id: artist.id, displayName: artist.displayName },
+      items,
+      nextCursor: hasMore ? page[page.length - 1].id : null,
+    };
   }
 }
