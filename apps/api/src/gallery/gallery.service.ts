@@ -125,12 +125,21 @@ export class GalleryService {
   ) {
     const artist = await this.prisma.user.findUnique({
       where: { id: artistId },
-      select: { id: true, displayName: true },
+      select: { id: true, displayName: true, createdAt: true },
     });
 
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
+
+    const [publicUploadCount, bookmarksReceived] = await Promise.all([
+      this.prisma.image.count({
+        where: { userId: artistId, isPublic: true, processingStatus: 'ready' },
+      }),
+      this.prisma.bookmark.count({
+        where: { image: { userId: artistId, isPublic: true } },
+      }),
+    ]);
 
     const images = await this.prisma.image.findMany({
       where: { userId: artistId, isPublic: true, processingStatus: 'ready' },
@@ -162,7 +171,12 @@ export class GalleryService {
     );
 
     return {
-      artist: { id: artist.id, displayName: artist.displayName },
+      artist: {
+        id: artist.id,
+        displayName: artist.displayName,
+        memberSince: artist.createdAt,
+        stats: { publicUploadCount, bookmarksReceived },
+      },
       items,
       nextCursor: hasMore ? page[page.length - 1].id : null,
     };
