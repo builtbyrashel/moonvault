@@ -54,21 +54,24 @@ export default async function HomePage() {
               }) => (
                 <a
                   key={item.id}
-                  href="/register"
-                  className="block break-inside-avoid mb-3.5 rounded-lg overflow-hidden bg-paper-light"
-                >
-                  {item.thumbnailUrl && item.width && item.height ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
-                      alt={item.title ?? 'Untitled artwork'}
-                      style={{ aspectRatio: `${item.width} / ${item.height}` }}
-                      className="w-full object-cover"
-                    />
-                  ) : (
-                    <div className="aspect-square bg-ink/10" />
-                  )}
-                </a>
+                    href="/register"
+                    className="group relative block break-inside-avoid mb-3.5 rounded-lg overflow-hidden bg-paper-light"
+                  >
+                    {item.thumbnailUrl && item.width && item.height ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
+                        alt={item.title ?? 'Untitled artwork'}
+                        style={{ aspectRatio: `${item.width} / ${item.height}` }}
+                        className="w-full object-cover"
+                      />
+                    ) : (
+                      <div className="aspect-square bg-ink/10" />
+                    )}
+                    <div className="absolute inset-0 bg-ink/0 group-hover:bg-ink/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <span className="text-paper-light text-sm font-medium">Join to view</span>
+                    </div>
+                  </a>
               ),
             )}
           </div>
