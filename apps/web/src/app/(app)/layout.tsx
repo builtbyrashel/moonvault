@@ -12,12 +12,13 @@ export default async function AppLayout({
   return (
     <div className="min-h-screen">
       <header className="flex items-center justify-between px-8 py-4 border-b border-ink/10">
-        <span className="font-display font-semibold text-lg">Print Room</span>
+        <span className="font-display font-semibold text-lg">Moon Vault</span>
         <nav className="flex items-center gap-6 text-sm text-slate">
           <a href="/gallery">Explore</a>
           <a href="/gallery/ranking">Ranking</a>
           {isLoggedIn ? (
             <>
+              <a href="/profile">Profile</a>
               <a href="/dashboard">Vault</a>
               <LogoutButton />
             </>
