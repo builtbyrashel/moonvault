@@ -15,6 +15,7 @@ export default async function AppLayout({
         <span className="font-display font-semibold text-lg">Print Room</span>
         <nav className="flex items-center gap-6 text-sm text-slate">
           <a href="/gallery">Explore</a>
+          <a href="/gallery/ranking">Ranking</a>
           {isLoggedIn ? (
             <>
               <a href="/dashboard">Vault</a>
