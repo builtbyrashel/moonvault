@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ProcessingQueueService } from './processing-queue.service';
 import { ImageProcessor } from './image.processor';
@@ -15,7 +15,7 @@ import { StorageModule } from '../storage/storage.module';
       },
     }),
     PrismaModule,
-    StorageModule,
+    forwardRef(() => StorageModule),
   ],
   providers: [ProcessingQueueService, ImageProcessor],
   exports: [ProcessingQueueService],

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const PROTECTED_PATHS = ['/dashboard'];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const token = req.cookies.get('moonvault_token');
   const isProtected = PROTECTED_PATHS.some((path) =>
     req.nextUrl.pathname.startsWith(path),

@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
 import { serverFetch } from '@/lib/api';
+import { UploadForm } from '@/components/upload-form';
+import { VaultList } from '@/components/vault-list';
 
 interface StorageUsage {
   usedBytes: number;
@@ -13,28 +15,37 @@ function formatBytes(bytes: number): string {
 }
 
 export default async function DashboardPage() {
-  const res = await serverFetch('/me/storage');
+  const [storageRes, uploadsRes] = await Promise.all([
+    serverFetch('/me/storage'),
+    serverFetch('/me/uploads'),
+  ]);
 
-  if (res.status === 401) {
+  if (storageRes.status === 401 || uploadsRes.status === 401) {
     redirect('/login');
   }
-  if (!res.ok) {
-    throw new Error('Failed to load storage usage');
+  if (!storageRes.ok || !uploadsRes.ok) {
+    throw new Error('Failed to load dashboard');
   }
 
-  const usage: StorageUsage = await res.json();
+  const usage: StorageUsage = await storageRes.json();
+  const uploads = await uploadsRes.json();
 
   return (
-    <div className="max-w-xs">
-      <div className="text-sm text-slate mb-1">
-        {formatBytes(usage.usedBytes)} of {formatBytes(usage.quotaBytes)} used
+    <div>
+      <div className="max-w-xs mb-6">
+        <div className="text-sm text-slate mb-1">
+          {formatBytes(usage.usedBytes)} of {formatBytes(usage.quotaBytes)} used
+        </div>
+        <div className="h-1.5 bg-ink/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-brass"
+            style={{ width: `${Math.min(usage.percentUsed, 100)}%` }}
+          />
+        </div>
       </div>
-      <div className="h-1.5 bg-ink/10 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-brass"
-          style={{ width: `${Math.min(usage.percentUsed, 100)}%` }}
-        />
-      </div>
+
+      <UploadForm />
+      <VaultList items={uploads.items} />
     </div>
   );
 }
