@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { ImageWithLoader } from '@/components/image-with-loader';
 
 export default async function HomePage() {
   const cookieStore = await cookies();
@@ -58,12 +59,11 @@ export default async function HomePage() {
                     className="group relative block break-inside-avoid mb-3.5 rounded-lg overflow-hidden bg-paper-light"
                   >
                     {item.thumbnailUrl && item.width && item.height ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <ImageWithLoader
                         src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
                         alt={item.title ?? 'Untitled artwork'}
-                        style={{ aspectRatio: `${item.width} / ${item.height}` }}
-                        className="w-full object-cover"
+                        width={item.width}
+                        height={item.height}
                       />
                     ) : (
                       <div className="aspect-square bg-ink/10" />

@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { serverFetch } from '@/lib/api';
 import { BookmarkButton } from '@/components/bookmark-button';
 import { ImageOwnerControls } from '@/components/image-owner-controls';
+import { ImageWithLoader } from '@/components/image-with-loader';
 
 interface ExifData {
   Make?: string;
@@ -50,16 +51,22 @@ export default async function ImageDetailPage({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <img
-        src={`${process.env.NEXT_PUBLIC_API_URL}${image.url}`}
-        alt={image.title ?? 'Untitled artwork'}
-        style={
-          image.width && image.height
-            ? { aspectRatio: `${image.width} / ${image.height}` }
-            : undefined
-        }
-        className="w-full rounded-lg mb-4"
-      />
+      {image.width && image.height ? (
+        <div className="w-full rounded-lg mb-4 overflow-hidden">
+          <ImageWithLoader
+            src={`${process.env.NEXT_PUBLIC_API_URL}${image.url}`}
+            alt={image.title ?? 'Untitled artwork'}
+            width={image.width}
+            height={image.height}
+          />
+        </div>
+      ) : (
+        <img
+          src={`${process.env.NEXT_PUBLIC_API_URL}${image.url}`}
+          alt={image.title ?? 'Untitled artwork'}
+          className="w-full rounded-lg mb-4"
+        />
+      )}
 
       {image.duplicateOfId && image.isOwner && (
         <div className="text-sm bg-brass/10 text-brass border border-brass/25 rounded-lg px-3 py-2 mb-4">

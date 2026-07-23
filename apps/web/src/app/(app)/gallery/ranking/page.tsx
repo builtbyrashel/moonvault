@@ -1,4 +1,5 @@
 import { serverFetch } from '@/lib/api';
+import { ImageWithLoader } from '@/components/image-with-loader';
 
 interface RankingItem {
   rank: number;
@@ -48,50 +49,54 @@ export default async function RankingPage({
         </div>
       </div>
 
-      <div className="columns-2 sm:columns-3 lg:columns-4 gap-3.5">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="break-inside-avoid mb-3.5 bg-paper-light rounded-lg overflow-hidden relative"
-          >
-            {item.rank <= 3 && (
-              <div
-                className={`absolute top-2 left-2 z-10 w-5 h-5 rounded-full flex items-center justify-center text-xs font-mono text-paper-light ${
-                  item.rank === 1 ? 'bg-accent' : item.rank === 2 ? 'bg-brass' : 'bg-slate'
-                }`}
-              >
-                {item.rank}
-              </div>
-            )}
-            <a href={`/images/${item.id}`}>
-              {item.thumbnailUrl && item.width && item.height ? (
-                <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
-                  alt={item.title ?? 'Untitled artwork'}
-                  style={{ aspectRatio: `${item.width} / ${item.height}` }}
-                  className="w-full object-cover"
-                />
-              ) : (
-                <div className="aspect-square bg-ink/10" />
-              )}
-            </a>
-            <div className="p-2.5">
-              <div className="text-sm font-medium">{item.title ?? 'Untitled'}</div>
-              <div className="flex justify-between items-center mt-1">
-                <a
-                  href={`/artists/${item.artist.id}`}
-                  className="text-xs text-slate hover:underline"
+      {items.length === 0 ? (
+        <p className="text-sm text-slate">No ranked images for this period yet.</p>
+      ) : (
+        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3.5">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="break-inside-avoid mb-3.5 bg-paper-light rounded-lg overflow-hidden relative"
+            >
+              {item.rank <= 3 && (
+                <div
+                  className={`absolute top-2 left-2 z-10 w-5 h-5 rounded-full flex items-center justify-center text-xs font-mono text-paper-light ${
+                    item.rank === 1 ? 'bg-accent' : item.rank === 2 ? 'bg-brass' : 'bg-slate'
+                  }`}
                 >
-                  @{item.artist.displayName}
-                </a>
-                <span className="text-xs font-mono text-accent">
-                  ♥ {item.bookmarkCount}
-                </span>
+                  {item.rank}
+                </div>
+              )}
+              <a href={`/images/${item.id}`}>
+                {item.thumbnailUrl && item.width && item.height ? (
+                  <ImageWithLoader
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${item.thumbnailUrl}`}
+                    alt={item.title ?? 'Untitled artwork'}
+                    width={item.width}
+                    height={item.height}
+                  />
+                ) : (
+                  <div className="aspect-square bg-ink/10" />
+                )}
+              </a>
+              <div className="p-2.5">
+                <div className="text-sm font-medium">{item.title ?? 'Untitled'}</div>
+                <div className="flex justify-between items-center mt-1">
+                  <a
+                    href={`/artists/${item.artist.id}`}
+                    className="text-xs text-slate hover:underline"
+                  >
+                    @{item.artist.displayName}
+                  </a>
+                  <span className="text-xs font-mono text-accent">
+                    ♥ {item.bookmarkCount}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

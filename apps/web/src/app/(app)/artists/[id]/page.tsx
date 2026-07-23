@@ -20,11 +20,15 @@ export default async function ArtistProfilePage({
       <h1 className="font-display font-semibold text-xl mb-6">
         {data.artist.displayName}
       </h1>
-      <GalleryFeed
-        initialItems={data.items}
-        initialCursor={data.nextCursor}
-        artistId={id}
-      />
+      {data.items.length === 0 ? (
+        <p className="text-sm text-slate">No public uploads from this artist yet.</p>
+      ) : (
+        <GalleryFeed
+          initialItems={data.items}
+          initialCursor={data.nextCursor}
+          artistId={id}
+        />
+      )}
     </div>
   );
 }
