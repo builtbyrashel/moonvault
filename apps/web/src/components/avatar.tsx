@@ -15,17 +15,15 @@ export function Avatar({
 }: {
   id: string;
   displayName: string;
-  size?: number;
+  size?: number | string;
 }) {
   const initial = displayName.trim().charAt(0).toUpperCase() || '?';
+  const dimension = typeof size === 'number' ? `${size}px` : size;
+  const fontSize = typeof size === 'number' ? `${size * 0.42}px` : `calc(${dimension} * 0.42)`;
+
   return (
     <div
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: colorForId(id),
-        fontSize: size * 0.42,
-      }}
+      style={{ width: dimension, height: dimension, backgroundColor: colorForId(id), fontSize }}
       className="rounded-full flex items-center justify-center text-paper-light font-medium shrink-0"
     >
       {initial}

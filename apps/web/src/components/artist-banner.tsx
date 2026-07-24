@@ -32,13 +32,23 @@ export function ArtistBanner({
   return (
     <div className="mb-6">
       <div
-        className="h-24 rounded-t-lg"
-        style={{ backgroundColor: colorForId(id + 'banner') }}
+        className="rounded-t-lg"
+        style={{
+          height: 'clamp(90px, 12vw, 200px)',
+          backgroundColor: colorForId(id + 'banner'),
+        }}
       />
       <div className="px-1">
-        <div className="-mt-9 mb-2">
+        <div
+          style={{ marginTop: 'clamp(-34px, -4.5vw, -56px)' }}
+          className="mb-2"
+        >
           <div className="ring-4 ring-paper rounded-full inline-block">
-            <Avatar id={id} displayName={displayName} size={72} />
+            <Avatar
+              id={id}
+              displayName={displayName}
+              size="clamp(56px, 7vw, 96px)"
+            />
           </div>
         </div>
         <div className="flex justify-between items-end flex-wrap gap-3">
