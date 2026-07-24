@@ -1,29 +1,34 @@
 import { serverFetch } from '@/lib/api';
 import { GalleryFeed } from '@/components/gallery-feed';
+import { GalleryFilterBar } from '@/components/gallery-filter-bar';
 
 export default async function GalleryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string }>;
+  searchParams: Promise<{ tag?: string; orientation?: string }>;
 }) {
-  const { tag } = await searchParams;
-  const query = tag ? `?tag=${encodeURIComponent(tag)}` : '';
-  const res = await serverFetch(`/gallery${query}`);
+  const { tag, orientation } = await searchParams;
+  const params = new URLSearchParams();
+  if (tag) params.set('tag', tag);
+  if (orientation) params.set('orientation', orientation);
+  const qs = params.toString();
+
+  const res = await serverFetch(`/gallery${qs ? `?${qs}` : ''}`);
   const data = await res.json();
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display font-semibold text-xl">
-          {tag ? `#${tag}` : 'Explore'}
-        </h1>
-        {tag && (
-          <a href="/gallery" className="text-sm text-accent">
-            Clear filter
-          </a>
-        )}
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="font-display font-semibold text-xl">Explore</h1>
+        <GalleryFilterBar />
       </div>
-      <GalleryFeed initialItems={data.items} initialCursor={data.nextCursor} tag={tag} />
+      <GalleryFeed
+        key={`${tag ?? ''}-${orientation ?? ''}`}
+        initialItems={data.items}
+        initialCursor={data.nextCursor}
+        tag={tag}
+        orientation={orientation}
+      />
     </div>
   );
 }

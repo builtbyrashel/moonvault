@@ -43,6 +43,7 @@ model Image {
   phash             String?
   duplicateOfId     String?
   exifData          Json?
+  orientation String? // 'portrait' | 'landscape' | 'square'
 
   bookmarks Bookmark[]
   tags ImageTag[]

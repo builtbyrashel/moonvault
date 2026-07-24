@@ -20,9 +20,10 @@ interface GalleryFeedProps {
   initialCursor: string | null;
   tag?: string;
   artistId?: string;
+  orientation?: string;
 }
 
-export function GalleryFeed({ initialItems, initialCursor, tag, artistId }: GalleryFeedProps) {
+export function GalleryFeed({ initialItems, initialCursor, tag, artistId, orientation }: GalleryFeedProps) {
   const [items, setItems] = useState(initialItems);
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,7 @@ export function GalleryFeed({ initialItems, initialCursor, tag, artistId }: Gall
     setLoading(true);
     const params = new URLSearchParams({ cursor });
     if (tag) params.set('tag', tag);
+    if (orientation) params.set('orientation', orientation);
     const endpoint = artistId
       ? `/api/gallery/artists/${artistId}`
       : '/api/gallery';

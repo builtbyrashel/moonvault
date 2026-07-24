@@ -21,6 +21,7 @@ export class GalleryService {
     cursor?: string,
     limit = DEFAULT_PAGE_SIZE,
     tag?: string,
+    orientation?: string,
   ) {
     const images = await this.prisma.image.findMany({
       where: {
@@ -29,6 +30,7 @@ export class GalleryService {
         ...(tag
           ? { tags: { some: { tag: { name: tag.toLowerCase() } } } }
           : {}),
+        ...(orientation ? { orientation } : {}),
       },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
@@ -180,5 +182,45 @@ export class GalleryService {
       items,
       nextCursor: hasMore ? page[page.length - 1].id : null,
     };
+  }
+
+  async getTagList() {
+    const tags = await this.prisma.tag.findMany({
+      where: {
+        images: {
+          some: {
+            image: {
+              isPublic: true,
+              processingStatus: 'ready',
+            },
+          },
+        },
+      },
+      include: {
+        _count: {
+          select: {
+            images: {
+              where: {
+                image: {
+                  isPublic: true,
+                  processingStatus: 'ready',
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        images: {
+          _count: 'desc',
+        },
+      },
+      take: 50,
+    });
+
+    return tags.map((t) => ({
+      name: t.name,
+      count: t._count.images,
+    }));
   }
 }

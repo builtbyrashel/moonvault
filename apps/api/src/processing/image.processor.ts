@@ -59,6 +59,13 @@ export class ImageProcessor extends WorkerHost {
       const original = await this.storageProvider.download(image.storageKey);
       const metadata = await sharp(original).metadata();
 
+      // Calculate orientation based on aspect ratio
+      const width = metadata.width ?? 0;
+      const height = metadata.height ?? 0;
+      const ratio = width && height ? width / height : 1;
+      const orientation =
+        ratio > 1.05 ? 'landscape' : ratio < 0.95 ? 'portrait' : 'square';
+
       const rawExif = (await exifr.parse(original, {
         pick: [
           'Make',
@@ -121,6 +128,7 @@ export class ImageProcessor extends WorkerHost {
         data: {
           width: metadata.width ?? null,
           height: metadata.height ?? null,
+          orientation,
           thumbnailKey,
           phash: hash,
           duplicateOfId,
