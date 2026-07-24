@@ -1,9 +1,9 @@
 const COLORS = ['#a63a2e', '#93762f', '#4f8f6b', '#3c6e9e', '#7a5ca3', '#c4507e'];
 
-function colorForId(id: string): string {
+export function colorForId(seed: string): string {
   let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
   }
   return COLORS[Math.abs(hash) % COLORS.length];
 }
