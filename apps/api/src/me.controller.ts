@@ -37,12 +37,14 @@ export class MeController {
     @Req() req: RequestWithUser,
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: string,
+    @Query('status') status?: 'processing' | 'ready' | 'public' | 'private',
   ) {
     const parsedLimit = limit ? Math.min(Number(limit), 50) : undefined;
     return this.uploadsService.getMyUploads(
       req.user.userId,
       cursor,
       parsedLimit,
+      status,
     );
   }
 }

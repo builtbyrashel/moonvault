@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useRef, useTransition, useActionState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 // Types
 interface UploadFormState {
   error: string | null;
   success: boolean;
+}
+
+interface UploadFormProps {
+  onUploaded?: () => void;
 }
 
 // Server Action
@@ -33,8 +36,7 @@ async function uploadFile(prevState: UploadFormState, formData: FormData): Promi
   }
 }
 
-export function UploadForm() {
-  const router = useRouter();
+export function UploadForm({ onUploaded }: UploadFormProps) {
   const [isPending, startTransition] = useTransition();
   const [state, formAction] = useActionState(uploadFile, {
     error: null,
@@ -91,11 +93,12 @@ export function UploadForm() {
       setTags('');
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      router.refresh();
-      // Reset success state after navigation
+      // Call the onUploaded callback if provided
+      onUploaded?.();
+      // Reset success state after callback
       state.success = false;
     }
-  }, [state.success, router]);
+  }, [state.success, onUploaded]);
 
   return (
     <form

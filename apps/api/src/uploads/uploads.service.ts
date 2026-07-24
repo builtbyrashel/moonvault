@@ -191,9 +191,25 @@ export class UploadsService {
     return { bookmarked: false };
   }
 
-  async getMyUploads(userId: string, cursor?: string, limit = 20) {
+  async getMyUploads(
+    userId: string,
+    cursor?: string,
+    limit = 20,
+    status?: 'processing' | 'ready' | 'public' | 'private',
+  ) {
+    const statusFilter =
+      status === 'processing'
+        ? { processingStatus: { in: ['pending', 'processing'] } }
+        : status === 'ready'
+          ? { processingStatus: 'ready' as const }
+          : status === 'public'
+            ? { isPublic: true }
+            : status === 'private'
+              ? { isPublic: false }
+              : {};
+
     const images = await this.prisma.image.findMany({
-      where: { userId },
+      where: { userId, ...statusFilter },
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: limit + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -212,12 +228,12 @@ export class UploadsService {
         width: image.width,
         height: image.height,
         sizeBytes: image.sizeBytes,
+        duplicateOfId: image.duplicateOfId,
         tags: image.tags.map((it) => it.tag.name),
         thumbnailUrl: image.thumbnailKey
           ? await this.storageProvider.getReadStreamUrl(image.thumbnailKey)
           : null,
         createdAt: image.createdAt,
-        duplicateOfId: image.duplicateOfId,
       })),
     );
 
